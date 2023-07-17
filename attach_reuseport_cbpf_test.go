@@ -32,7 +32,6 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-// var raw_smp_processor_id = SKF_AD_OFF + SKF_AD_CPU
 var rawSMPProcessorID = SKF_AD_OFF + SKF_AD_CPU
 
 var code = [...]unix.SockFilter{
@@ -187,7 +186,9 @@ func TestListenerWithReuseport(t *testing.T) {
 	}
 	t.Log("Done", runtime.NumCPU())
 
-	// We use fact that
+	// The sending code artificially moves itself to run on different core ids
+	// and sends one message from each core. Since these packets are delivered
+	// over loopback, they should  arrive on the same core that sent them.
 	for i := 0; i < runtime.NumCPU(); i++ {
 		// setup affinity
 		var cpuset unix.CPUSet
